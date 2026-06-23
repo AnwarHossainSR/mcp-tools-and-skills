@@ -3,25 +3,7 @@
   "version": "0.1.0",
   "description": "MCP tools and skills",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "workspaces": [
     "packages/*"
-  ],
-  "scripts": {
-    "dev": "bun run src/index.ts",
-    "build": "tsc",
-    "start": "bun dist/index.js",
-    "test": "bun test",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "latest"
-  },
-  "engines": {
-    "bun": ">=1.0.0"
-  }
+  ]
 }
