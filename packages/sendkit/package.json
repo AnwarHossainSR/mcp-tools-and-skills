@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "description": "SendKit CLI - A command-line interface for MCP tools",
   "type": "module",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "commander": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0"
+  }
 }
