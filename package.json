@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:cli": "bun packages/cli/src/index.ts"
+    "dev:cli": "bun packages/cli/src/index.ts",
+    "dev:mcp-local": "bun packages/mcp-local/src/index.ts"
   }
 }

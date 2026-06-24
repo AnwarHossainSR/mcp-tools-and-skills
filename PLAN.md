@@ -111,22 +111,39 @@ Verified: `tsc --noEmit` passes for core + cli; `bun run dev:cli telegram …`
 loads the token, validates with Zod, calls the API, and surfaces Telegram's
 own error message via the thrown `Error`.
 
-### 2. Local MCP Server (stdio) (01:09:18)
+### 2. Local MCP Server (stdio) ✅ (01:09:18)
 **Goal:** expose the same capability to local AI agents.
 
-- [ ] Re-read `subtitle.md` around "local MCP" / "create server" / "register
-      tool" before coding — confirm package layout, function names
-      (`createServer(botToken)` per the transcript), and whether the tool
-      input schema is `telegramMessageInputSchema.shape` (chatId + message
-      only, botToken supplied by the server, not the caller).
-- [ ] New package (e.g. `packages/mcp-local`), depend on `@sendkit/core` and
-      `@modelcontextprotocol/sdk`.
-- [ ] Stdio transport server.
-- [ ] Register a `telegram` tool; reuse `telegramMessageInputSchema.shape` for
-      the tool's input schema.
-- [ ] Tool handler calls `sendTelegramMessage({ ...input, botToken })`, maps
-      result/thrown error to MCP content.
-- [ ] Document Claude Desktop / MCP client config to run it.
+- [x] New package `packages/mcp-local` (`@sendkit/mcp-local`), deps
+      `@modelcontextprotocol/sdk@1.29.0` (v1 — still the recommended/latest
+      published version), `@sendkit/core` (`workspace:*`), `zod`; own
+      `tsconfig.json` extending root.
+- [x] `src/index.ts` — `McpServer({ name: 'sendkit-local', version: '0.0.0' })`
+      + `StdioServerTransport`.
+- [x] `getTelegramBotToken()` reads `process.env.TELEGRAM_BOT_TOKEN` and
+      throws ("Configure it in your MCP client environment") instead of
+      pointing at a `.env` file — the local MCP server's env comes from
+      whatever MCP client config launches it, not this repo's `.env`.
+- [x] Registered `telegram` tool reusing `telegramMessageInputSchema.shape`
+      (chatId + message only) as the input schema — `@sendkit/core` schema
+      reused verbatim, not redefined.
+- [x] Handler calls `sendTelegramMessage({ ...input, botToken: getTelegramBotToken() })`
+      and returns `{ content: [{ type: 'text', text: … }], structuredContent: result }`.
+- [x] Root script `dev:mcp-local` → `bun packages/mcp-local/src/index.ts`.
+- [ ] MCP client config (`mcp.json` / `opencode.json`) — intentionally not
+      committed: those files embed the raw bot token and the transcript
+      explicitly warns to gitignore them. Documented here instead — wire up
+      manually when testing against Claude Code / opencode:
+      ```json
+      { "mcpServers": { "sendkit": {
+        "type": "stdio", "command": "bun", "args": ["run", "dev:mcp-local"],
+        "env": { "TELEGRAM_BOT_TOKEN": "<token>" }
+      } } }
+      ```
+
+Verified: `tsc --noEmit` passes; `bun run dev:mcp-local` starts and hangs
+waiting on stdio (no crash) — correct, since it's meant to be driven by an
+MCP client, not run directly.
 
 ### 3. Remote MCP Server — `apps/remote-mcp` (01:36:38)
 **Goal:** same tool over HTTP for remote clients.
