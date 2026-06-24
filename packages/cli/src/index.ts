@@ -1,4 +1,5 @@
-import { sendTelegramMessage } from "@sendkit/core";
+#!/usr/bin/env node
+import { sendTelegramMessage } from "@anwarhossainsr/sendkit-core";
 import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -33,7 +34,7 @@ function getTelegramBotToken(): string {
 
 const program = new Command();
 
-program.name("sendkit").description("SendKit CLI backed by @sendkit/core");
+program.name("sendkit").description("SendKit CLI backed by @anwarhossainsr/sendkit-core");
 
 program
   .command("telegram")

@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { sendTelegramMessage, telegramMessageInputSchema } from "@sendkit/core";
+import { sendTelegramMessage, telegramMessageInputSchema } from "@anwarhossainsr/sendkit-core";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

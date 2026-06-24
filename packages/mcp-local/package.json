@@ -1,15 +1,24 @@
 {
-  "name": "@sendkit/mcp-local",
+  "name": "@anwarhossainsr/sendkit-mcp-local",
   "version": "0.0.0",
   "private": true,
   "description": "SendKit local MCP server (stdio transport)",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
-    "@sendkit/core": "workspace:*",
+    "@anwarhossainsr/sendkit-core": "workspace:*",
     "zod": "^3.25.76"
   }
 }

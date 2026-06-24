@@ -15,12 +15,16 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint --deny-warnings",
     "lint:fix": "oxlint --fix",
-    "type-check": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/cli/tsconfig.json && tsc --noEmit -p packages/mcp-local/tsconfig.json && tsc --noEmit -p apps/remote-mcp/tsconfig.json"
+    "type-check": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/cli/tsconfig.json && tsc --noEmit -p packages/mcp-local/tsconfig.json && tsc --noEmit -p apps/remote-mcp/tsconfig.json",
+    "build:core": "bun run --filter @anwarhossainsr/sendkit-core build",
+    "build:cli": "bun run --filter @anwarhossainsr/sendkit build",
+    "build:mcp-local": "bun run --filter @anwarhossainsr/sendkit-mcp-local build"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
     "oxfmt": "^0.56.0",
     "oxlint": "^1.71.0",
+    "tsdown": "^0.22.3",
     "typescript": "^6.0.3"
   }
 }
