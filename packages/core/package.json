@@ -1,8 +1,10 @@
 {
   "name": "@anwarhossainsr/sendkit-core",
   "version": "0.1.0",
-  "private": true,
   "description": "SendKit shared core - schemas, senders, and types",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -13,8 +15,13 @@
       "import": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "pack:dry": "bun run build && npm pack --dry-run",
+    "prepublishOnly": "bun run build"
   },
   "dependencies": {
     "zod": "^3.25.76"

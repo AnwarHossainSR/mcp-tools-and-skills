@@ -19,7 +19,10 @@
     "build:core": "bun run --filter @anwarhossainsr/sendkit-core build",
     "build:cli": "bun run --filter @anwarhossainsr/sendkit build",
     "build:mcp-local": "bun run --filter @anwarhossainsr/sendkit-mcp-local build",
-    "build:all": "bun run build:core && bun run build:cli && bun run build:mcp-local"
+    "build:all": "bun run build:core && bun run build:cli && bun run build:mcp-local",
+    "release:pack:core": "bun run --filter @anwarhossainsr/sendkit-core pack:dry",
+    "release:pack:cli": "bun run --filter @anwarhossainsr/sendkit pack:dry",
+    "release:pack:mcp-local": "bun run --filter @anwarhossainsr/sendkit-mcp-local pack:dry",
   },
   "devDependencies": {
     "@types/node": "^26.0.0",

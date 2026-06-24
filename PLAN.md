@@ -344,15 +344,25 @@ Verified: `bun run build:core|cli|mcp-local` all exit 0 and emit
       `tsdown.config.ts` `neverBundle` lists, root `build:*` `--filter` targets,
       `cli` `program.description`. `bun install` refreshed the lockfile; all
       builds + `lint` + `type-check` pass; no `@sendkit/*` left in code.
-- [ ] Per package: remove `private`, add `files: ["dist"]` and
-      `publishConfig: { access: "public" }`, plus `pack:dry`
-      (`bun run build && npm pack --dry-run`) and `prepublishOnly`
-      (`bun run build`) scripts; root `release:pack:*`
-      (`bun run --filter <name> pack:dry`).
-- [ ] Versioning strategy (changesets or manual).
-- [ ] `npm login` (org `anwarhossainsr`), publish `@anwarhossainsr/sendkit-core`
-      first (others depend on it), then `@anwarhossainsr/sendkit`; verify
-      `npx @anwarhossainsr/sendkit`.
+- [x] Per package (`core`, `cli`, `mcp-local`): removed `private`, added
+      `files: ["dist"]`, `publishConfig: { access: "public" }`, and scripts
+      `pack:dry` (`bun run build && npm pack --dry-run`) + `prepublishOnly`
+      (`bun run build`). Root `release:pack:core|cli|mcp-local`
+      (`bun run --filter <name> pack:dry`). `remote-mcp` stays `private`.
+      Verified: `pack:dry` tarballs contain only `dist/*` + `package.json`
+      (core 2.8 kB, cli 0.73 kB pkg + dist incl. shebang'd `bin`).
+- [ ] Versioning strategy (changesets or manual) — currently core/cli `0.1.0`,
+      mcp-local `0.0.0`; bump before first publish if desired.
+- [ ] **Publish (manual — irreversible, needs auth):** `bun login` (npm user
+      under org `anwarhossainsr`), then publish core first (others depend on
+      it): `cd packages/core && bun publish`, then
+      `cd packages/cli && bun publish`. Verify `npx @anwarhossainsr/sendkit`.
+      - **Divergence note:** use **`bun publish`, NOT `npm publish`** — cli &
+        mcp-local depend on core via `workspace:*`, which `npm publish` leaves
+        literal in the tarball (broken for installers). Confirmed: `npm pack`
+        keeps `"workspace:*"`; `bun publish` rewrites it to the resolved
+        version. `publishConfig.access: public` is required (scoped packages
+        default private). `prepublishOnly` rebuilds `dist` on every publish.
 
 ### 9. Deploying OAuth (Remote MCP) (03:35:02)
 
