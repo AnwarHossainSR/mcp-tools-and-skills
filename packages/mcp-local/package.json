@@ -2,6 +2,9 @@
   "name": "@anwarhossainsr/sendkit-mcp-local",
   "version": "0.0.0",
   "description": "SendKit local MCP server (stdio transport)",
+  "bin": {
+    "sendkit-mcp": "./dist/index.js"
+  },
   "files": [
     "dist"
   ],
@@ -20,7 +23,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "pack:dry": "bun run build && npm pack --dry-run",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
     "prepublishOnly": "bun run build"
   },
   "dependencies": {

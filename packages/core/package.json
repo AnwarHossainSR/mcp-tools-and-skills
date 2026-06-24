@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "pack:dry": "bun run build && npm pack --dry-run",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
     "prepublishOnly": "bun run build"
   },
   "dependencies": {

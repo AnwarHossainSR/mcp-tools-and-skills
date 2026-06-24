@@ -346,23 +346,39 @@ Verified: `bun run build:core|cli|mcp-local` all exit 0 and emit
       builds + `lint` + `type-check` pass; no `@sendkit/*` left in code.
 - [x] Per package (`core`, `cli`, `mcp-local`): removed `private`, added
       `files: ["dist"]`, `publishConfig: { access: "public" }`, and scripts
-      `pack:dry` (`bun run build && npm pack --dry-run`) + `prepublishOnly`
+      `pack:dry` (`bun run build && bun pm pack --dry-run`) + `prepublishOnly`
       (`bun run build`). Root `release:pack:core|cli|mcp-local`
       (`bun run --filter <name> pack:dry`). `remote-mcp` stays `private`.
-      Verified: `pack:dry` tarballs contain only `dist/*` + `package.json`
-      (core 2.8 kB, cli 0.73 kB pkg + dist incl. shebang'd `bin`).
-- [ ] Versioning strategy (changesets or manual) — currently core/cli `0.1.0`,
-      mcp-local `0.0.0`; bump before first publish if desired.
-- [ ] **Publish (manual — irreversible, needs auth):** `bun login` (npm user
-      under org `anwarhossainsr`), then publish core first (others depend on
-      it): `cd packages/core && bun publish`, then
-      `cd packages/cli && bun publish`. Verify `npx @anwarhossainsr/sendkit`.
-      - **Divergence note:** use **`bun publish`, NOT `npm publish`** — cli &
-        mcp-local depend on core via `workspace:*`, which `npm publish` leaves
-        literal in the tarball (broken for installers). Confirmed: `npm pack`
-        keeps `"workspace:*"`; `bun publish` rewrites it to the resolved
-        version. `publishConfig.access: public` is required (scoped packages
-        default private). `prepublishOnly` rebuilds `dist` on every publish.
+      `cli` has `bin.sendkit`; `mcp-local` has `bin.sendkit-mcp` — both entries
+      carry a `#!/usr/bin/env node` shebang (tsdown preserves it + chmods +x).
+- [x] **Pack tooling = `bun pm pack` (not `npm pack`)** for all three —
+      `bun pm pack` rewrites the `workspace:*` core dep to the published version
+      in the tarball; `npm pack` leaves it literal. Verified: cli tarball
+      `package.json` shows `"@anwarhossainsr/sendkit-core": "0.1.0"`.
+- [x] Versioning: core `0.1.0`, mcp-local `0.0.0`. **cli bumped `0.1.0 → 0.1.1`**
+      — the original `0.1.0` was published with `npm publish` and shipped the
+      literal `workspace:*` dep (install fails with
+      `EUNSUPPORTEDPROTOCOL "workspace:"`); that version is immutable, so the
+      fix ships as `0.1.1` via `bun publish`.
+
+**npm registry state (2026-06-24):**
+- `@anwarhossainsr/sendkit-core@0.1.0` — ✅ published, clean (`deps: { zod }`).
+  No republish needed.
+- `@anwarhossainsr/sendkit@0.1.0` — ❌ broken (literal `workspace:*`). Superseded
+  by `0.1.1` (republish below); optionally `npm unpublish …@0.1.0`.
+- `@anwarhossainsr/sendkit-mcp-local` — not yet published.
+
+- [ ] **Publish remaining (manual — irreversible, needs npm 2FA `--otp`):**
+      ```bash
+      # cli (fixed 0.1.1) — bun rewrites workspace:* → 0.1.0
+      cd packages/cli && bun publish --otp=<6-digit-code>
+      # local MCP server (first publish)
+      cd ../mcp-local && bun publish --otp=<6-digit-code>
+      ```
+      Then verify: `npm i -g @anwarhossainsr/sendkit && sendkit --help`.
+      - **Divergence note:** core was published with plain `npm publish` (no
+        workspace dep, fine). cli & mcp-local **must** use `bun publish` — it
+        resolves the bun `workspace:*` alias that `npm publish` cannot.
 
 ### 9. Deploying OAuth (Remote MCP) (03:35:02)
 

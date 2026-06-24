@@ -1,6 +1,6 @@
 {
   "name": "@anwarhossainsr/sendkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SendKit CLI - A command-line interface for MCP tools",
   "bin": {
     "sendkit": "./dist/index.js"
@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "pack:dry": "bun run build && npm pack --dry-run",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
