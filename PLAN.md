@@ -182,13 +182,50 @@ handshake; `tools/list` returns the `telegram` tool with the core-derived
 > Bearer-token middleware deferred: transcript's Step 3 ships the bare server
 > (token in URL) and adds real auth in Step 4 (OAuth/Clerk). Kept aligned.
 
-### 4. OAuth (01:57:54)
+### 4. OAuth — Clerk ✅ (01:57:54)
 **Goal:** replace the static bearer token with real auth.
 
-- [ ] Re-read `subtitle.md` around "OAuth" before coding.
-- [ ] OAuth flow for the remote MCP server (authorization + token endpoints /
-      metadata as MCP auth spec requires).
-- [ ] Protect `POST /mcp` behind validated OAuth tokens.
+- [x] Re-read `subtitle.md` around "OAuth" (≈ lines 997–1199) before coding —
+      transcript uses **Clerk** (not a self-issued/manual OAuth server).
+- [x] Deps in `apps/remote-mcp`: `@clerk/backend` (`createClerkClient`,
+      `clerkClient.authenticateRequest`), `@clerk/mcp-tools`
+      (`generateClerkProtectedResourceMetadata` from
+      `@clerk/mcp-tools/server`).
+- [x] Read `CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` from env, **throw** at
+      boot if either missing; init one `clerkClient`. `.env.example` documents
+      both keys.
+- [x] Protected-resource metadata endpoint
+      `GET /.well-known/oauth-protected-resource/:botToken/mcp` →
+      `generateClerkProtectedResourceMetadata({ publishableKey, resourceUrl })`
+      (per MCP auth spec / RFC 9728) so the client can discover Clerk.
+- [x] Helpers: `protectedResourceMetadataUrl(c, botToken)` and
+      `unauthorizedMcpResponse(c, botToken)` → throws a 401 with
+      `WWW-Authenticate: Bearer resource_metadata="<url>"`.
+- [x] `POST /:botToken/mcp` protected: require `Authorization: Bearer …`, then
+      `clerkClient.authenticateRequest(c.req.raw, { acceptsToken: 'oauth_token' })`;
+      on missing header / `!isAuthenticated` / any throw → return the 401
+      metadata response. Only on success build the MCP server + transport.
+- [x] HTTPS-protocol fix: custom `fetch` rewrites `x-forwarded-proto` /
+      `x-forwarded-host` onto the request URL before `app.fetch` so OAuth
+      redirect URLs stay `https` behind a tunnel/proxy.
+      - **Divergence note:** transcript names are audio-garbled; verified
+        against installed types — `createClerkClient`,
+        `generateClerkProtectedResourceMetadata` (`@clerk/mcp-tools/server`),
+        `authenticateRequest(req, { acceptsToken: 'oauth_token' })`,
+        `requestState.isAuthenticated` (`isSignedIn` is deprecated in
+        `@clerk/backend@3`). 401 thrown via Hono `HTTPException`.
+
+Verified: `tsc --noEmit -p apps/remote-mcp/tsconfig.json` passes. Boot throws
+without Clerk keys. With (dummy) keys: metadata endpoint → 200 protected-
+resource JSON; `POST /:botToken/mcp` without a Bearer → 401 +
+`WWW-Authenticate: Bearer resource_metadata="…/.well-known/oauth-protected-resource/…/mcp"`.
+
+> Full end-to-end sign-in (Claude/ChatGPT connector → Clerk login → tool call)
+> needs a real free Clerk app (email + Google), `Dynamic client registration`
+> enabled (Configure → Developers → OAuth applications → Settings), real keys
+> in `.env`, and a public HTTPS tunnel/deploy — covered at deploy time
+> (Step 9). ChatGPT may need a **user-defined** OAuth client (manual app with
+> all scopes incl. `openid`) since its dynamic registration drops scopes.
 
 ### 5. CLI Config (02:21:55)
 **Goal:** stop depending on a single ambient `.env`.
