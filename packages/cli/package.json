@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@sendkit/core": "workspace:*",
     "commander": "^15.0.0"
   },
   "devDependencies": {
