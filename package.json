@@ -2,14 +2,33 @@
   "name": "sendkit-workspace",
   "version": "0.1.0",
   "description": "MCP tools and skills",
-  "type": "module",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
+  "type": "module",
   "scripts": {
     "dev:cli": "bun packages/cli/src/index.ts",
     "dev:mcp-local": "bun packages/mcp-local/src/index.ts",
-    "dev:remote-mcp": "bun apps/remote-mcp/src/index.ts"
+    "dev:remote-mcp": "bun apps/remote-mcp/src/index.ts",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --deny-warnings",
+    "lint:fix": "oxlint --fix",
+    "type-check": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/cli/tsconfig.json && tsc --noEmit -p packages/mcp-local/tsconfig.json && tsc --noEmit -p apps/remote-mcp/tsconfig.json",
+    "build:core": "bun run --filter @anwarhossainsr/sendkit-core build",
+    "build:cli": "bun run --filter @anwarhossainsr/sendkit build",
+    "build:mcp-local": "bun run --filter @anwarhossainsr/sendkit-mcp-local build",
+    "build:all": "bun run build:core && bun run build:cli && bun run build:mcp-local",
+    "release:pack:core": "bun run --filter @anwarhossainsr/sendkit-core pack:dry",
+    "release:pack:cli": "bun run --filter @anwarhossainsr/sendkit pack:dry",
+    "release:pack:mcp-local": "bun run --filter @anwarhossainsr/sendkit-mcp-local pack:dry"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "oxfmt": "^0.56.0",
+    "oxlint": "^1.71.0",
+    "tsdown": "^0.22.3",
+    "typescript": "^6.0.3"
   }
 }

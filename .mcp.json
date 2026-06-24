@@ -3,10 +3,7 @@
     "sendKit": {
       "type": "stdio",
       "command": "bun",
-      "args": [
-        "run",
-        "dev:mcp-local"
-      ]
+      "args": ["run", "dev:mcp-local"]
     }
   }
 }
