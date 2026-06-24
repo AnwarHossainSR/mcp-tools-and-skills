@@ -1,9 +1,9 @@
 {
   "name": "@sendkit/mcp-local",
   "version": "0.0.0",
+  "private": true,
   "description": "SendKit local MCP server (stdio transport)",
   "type": "module",
-  "private": true,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -11,8 +11,5 @@
     "@modelcontextprotocol/sdk": "1.29.0",
     "@sendkit/core": "workspace:*",
     "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "@types/node": "^26.0.0"
   }
 }

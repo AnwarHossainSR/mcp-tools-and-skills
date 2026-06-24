@@ -1,9 +1,9 @@
 {
   "name": "@sendkit/core",
   "version": "0.1.0",
+  "private": true,
   "description": "SendKit shared core - schemas, senders, and types",
   "type": "module",
-  "private": true,
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",

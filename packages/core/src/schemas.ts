@@ -1,14 +1,14 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /** What a caller (CLI, MCP tool, …) provides to send a Telegram message. */
 export const telegramMessageInputSchema = z.object({
-  chatId: z.string().min(1, 'chatId is required'),
-  message: z.string().min(1, 'message is required'),
+  chatId: z.string().min(1, "chatId is required"),
+  message: z.string().min(1, "message is required"),
 });
 
 /** Full set of arguments the operation needs, including the bot token. */
 export const telegramMessageOptionsSchema = telegramMessageInputSchema.extend({
-  botToken: z.string().min(1, 'botToken is required'),
+  botToken: z.string().min(1, "botToken is required"),
 });
 
 /** Body we send to the Telegram sendMessage API. */

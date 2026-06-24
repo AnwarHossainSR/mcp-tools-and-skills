@@ -70,20 +70,21 @@ below). Each step ships something runnable.
 > showed core throws `Error` and takes one `{ chatId, message, botToken }`
 > object — the plan below already reflects the corrected version.
 
-| Step | Video timestamp |
-|---|---|
-| 1. Shared Core | 00:39:34 |
-| 2. Local MCP | 01:09:18 |
-| 3. Remote MCP | 01:36:38 |
-| 4. OAuth | 01:57:54 |
-| 5. CLI Config | 02:21:55 |
-| 6. Formatting & Linting | 02:37:35 |
-| 7. Bundling | 02:48:27 |
-| 8. Publishing | 03:03:03 |
-| 9. Deploying OAuth | 03:35:02 |
-| 10. Skill | 03:37:46 |
+| Step                    | Video timestamp |
+| ----------------------- | --------------- |
+| 1. Shared Core          | 00:39:34        |
+| 2. Local MCP            | 01:09:18        |
+| 3. Remote MCP           | 01:36:38        |
+| 4. OAuth                | 01:57:54        |
+| 5. CLI Config           | 02:21:55        |
+| 6. Formatting & Linting | 02:37:35        |
+| 7. Bundling             | 02:48:27        |
+| 8. Publishing           | 03:03:03        |
+| 9. Deploying OAuth      | 03:35:02        |
+| 10. Skill               | 03:37:46        |
 
 ### 1. Shared Core — `@sendkit/core` ✅ (00:39:34)
+
 **Goal:** one place that owns the Telegram logic + validation.
 
 - [x] New package `packages/core` (`@sendkit/core`), its own `tsconfig.json`
@@ -112,14 +113,14 @@ loads the token, validates with Zod, calls the API, and surfaces Telegram's
 own error message via the thrown `Error`.
 
 ### 2. Local MCP Server (stdio) ✅ (01:09:18)
+
 **Goal:** expose the same capability to local AI agents.
 
 - [x] New package `packages/mcp-local` (`@sendkit/mcp-local`), deps
       `@modelcontextprotocol/sdk@1.29.0` (v1 — still the recommended/latest
       published version), `@sendkit/core` (`workspace:*`), `zod`; own
       `tsconfig.json` extending root.
-- [x] `src/index.ts` — `McpServer({ name: 'sendkit-local', version: '0.0.0' })`
-      + `StdioServerTransport`.
+- [x] `src/index.ts` — `McpServer({ name: 'sendkit-local', version: '0.0.0' })` + `StdioServerTransport`.
 - [x] `getTelegramBotToken()` reads `process.env.TELEGRAM_BOT_TOKEN` and
       throws ("Configure it in your MCP client environment") instead of
       pointing at a `.env` file — the local MCP server's env comes from
@@ -146,6 +147,7 @@ waiting on stdio (no crash) — correct, since it's meant to be driven by an
 MCP client, not run directly.
 
 ### 3. Remote MCP Server — `apps/remote-mcp` ✅ (01:36:38)
+
 **Goal:** same tool over HTTP for remote clients.
 
 - [x] Re-read `subtitle.md` around "remote MCP" before coding (≈ lines 813–925).
@@ -161,15 +163,14 @@ MCP client, not run directly.
       `enableJsonResponse: true`), `server.connect(transport)`, then
       `transport.handleRequest(c.req.raw)` in `try` / `server.close()` in
       `finally`. `app.notFound` → 404 JSON. `export default { port, fetch }`,
-      `port = PORT ?? 3000`.
-      - **Divergence note:** transcript imports a "web standard streamable HTTP
-        server transport" but never names the class; SDK 1.29 exposes it as
-        `WebStandardStreamableHTTPServerTransport` from
-        `@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js`
-        (returns a web `Response` from `handleRequest`, so `c.req.raw` works
-        directly with Hono). Token lives in the URL path
-        (`/:botToken/mcp`) per the transcript — this is the "first cut", real
-        auth (OAuth/Clerk) is Step 4.
+      `port = PORT ?? 3000`. - **Divergence note:** transcript imports a "web standard streamable HTTP
+      server transport" but never names the class; SDK 1.29 exposes it as
+      `WebStandardStreamableHTTPServerTransport` from
+      `@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js`
+      (returns a web `Response` from `handleRequest`, so `c.req.raw` works
+      directly with Hono). Token lives in the URL path
+      (`/:botToken/mcp`) per the transcript — this is the "first cut", real
+      auth (OAuth/Clerk) is Step 4.
 - [x] Reuse `@sendkit/core` for the tool (no logic duplication) — handler uses
       the `botToken` arg directly, no `process.env`.
 - [x] Root script `dev:remote-mcp` → `bun apps/remote-mcp/src/index.ts`.
@@ -183,6 +184,7 @@ handshake; `tools/list` returns the `telegram` tool with the core-derived
 > (token in URL) and adds real auth in Step 4 (OAuth/Clerk). Kept aligned.
 
 ### 4. OAuth — Clerk ✅ (01:57:54)
+
 **Goal:** replace the static bearer token with real auth.
 
 - [x] Re-read `subtitle.md` around "OAuth" (≈ lines 997–1199) before coding —
@@ -207,13 +209,12 @@ handshake; `tools/list` returns the `telegram` tool with the core-derived
       metadata response. Only on success build the MCP server + transport.
 - [x] HTTPS-protocol fix: custom `fetch` rewrites `x-forwarded-proto` /
       `x-forwarded-host` onto the request URL before `app.fetch` so OAuth
-      redirect URLs stay `https` behind a tunnel/proxy.
-      - **Divergence note:** transcript names are audio-garbled; verified
-        against installed types — `createClerkClient`,
-        `generateClerkProtectedResourceMetadata` (`@clerk/mcp-tools/server`),
-        `authenticateRequest(req, { acceptsToken: 'oauth_token' })`,
-        `requestState.isAuthenticated` (`isSignedIn` is deprecated in
-        `@clerk/backend@3`). 401 thrown via Hono `HTTPException`.
+      redirect URLs stay `https` behind a tunnel/proxy. - **Divergence note:** transcript names are audio-garbled; verified
+      against installed types — `createClerkClient`,
+      `generateClerkProtectedResourceMetadata` (`@clerk/mcp-tools/server`),
+      `authenticateRequest(req, { acceptsToken: 'oauth_token' })`,
+      `requestState.isAuthenticated` (`isSignedIn` is deprecated in
+      `@clerk/backend@3`). 401 thrown via Hono `HTTPException`.
 
 Verified: `tsc --noEmit -p apps/remote-mcp/tsconfig.json` passes. Boot throws
 without Clerk keys. With (dummy) keys: metadata endpoint → 200 protected-
@@ -228,6 +229,7 @@ resource JSON; `POST /:botToken/mcp` without a Bearer → 401 +
 > all scopes incl. `openid`) since its dynamic registration drops scopes.
 
 ### 5. CLI Config ✅ (02:21:55)
+
 **Goal:** stop depending on a single ambient `.env`.
 
 - [x] Re-read `subtitle.md` around "CLI config" / "config.json" (≈ lines
@@ -250,9 +252,8 @@ resource JSON; `POST /:botToken/mcp` without a Bearer → 401 +
 
 Verified: `tsc --noEmit -p packages/cli/tsconfig.json` passes. With an empty
 home, `telegram 123 hi` → `Telegram bot token is required. Please run
-\`sendkit init\`.`; `init --telegram-bot-token …` writes
-`~/.config/sendkit/config.json` (`{ "telegramBotToken": … }`); `init` with no
-flag → commander `required option '--telegram-bot-token <token>' not specified`.
+\`sendkit init\`.`; `init --telegram-bot-token …`writes`~/.config/sendkit/config.json` (`{ "telegramBotToken": … }`); `init`with no
+flag → commander`required option '--telegram-bot-token <token>' not specified`.
 
 > **Divergence from this plan's original wording:** the transcript implements a
 > **config-file-only** source — it removes the `.env`/`process.env` dependency
@@ -261,14 +262,41 @@ flag → commander `required option '--telegram-bot-token <token>' not specified
 > transcript. (zod resolves to v4 in the CLI vs v3 in core — independent
 > schemas, no shared types, so no conflict.)
 
-### 6. Formatting & Linting (02:37:35)
-- [ ] Re-read `subtitle.md` around "oxlint" / "formatter" before coding —
-      transcript uses `oxlintrc.json` + an oxc formatter config, not
-      Biome/ESLint/Prettier.
-- [ ] Add the formatter + linter configs at the root.
-- [ ] Scripts: `lint`, `format`. Apply across all packages.
+### 6. Formatting & Linting ✅ (02:37:35)
+
+- [x] Re-read `subtitle.md` around "oxlint" / "formatter" (≈ lines 1329–1425)
+      before coding — OXC (oxlint + oxfmt), not Biome/ESLint/Prettier.
+- [x] Root devDeps: `oxlint@1.71`, `oxfmt@0.56`, `typescript@6`,
+      `@types/node@26`. (`tsdown` deferred to Step 7 to keep the step boundary
+      clean — transcript installs it here but doesn't use it until bundling.)
+- [x] Formatter config `.oxfmtrc.json` (`$schema` →
+      `./node_modules/oxfmt/configuration_schema.json`,
+      `ignorePatterns: ["bun.lock", "**/*.md"]`).
+- [x] Linter config `.oxlintrc.json` (`$schema` →
+      `./node_modules/oxlint/configuration_schema.json`,
+      `plugins: ["typescript", "unicorn", "oxc"]`,
+      `categories: { correctness: "error", suspicious: "warn" }`, empty
+      `rules`, `env: { builtin: true }`).
+- [x] Root scripts: `format` (`oxfmt`), `format:check` (`oxfmt --check`),
+      `lint` (`oxlint --deny-warnings`), `lint:fix` (`oxlint --fix`),
+      `type-check` (`tsc --noEmit -p` over core / cli / mcp-local / remote-mcp).
+- [x] Consolidated `@types/node` to the root; removed it from `cli`,
+      `mcp-local`, `remote-mcp` (core never had it).
+- [x] Ran `bun run format` over the repo (normalizes quotes → double, key
+      order, spacing — no behavior change).
+      - **Divergence note:** real binaries are `oxfmt` (config `.oxfmtrc.json`,
+        default mode `--write`) and `oxlint` (config `.oxlintrc.json`,
+        auto-detected) — transcript audio garbled both. Added `**/*.md` to
+        `ignorePatterns`: `oxfmt` reflows Markdown and corrupted a nested
+        fenced JSON code block in this plan; docs are excluded so
+        prose/fences stay intact.
+
+Verified: `bun run lint` → exit 0; `bun run type-check` → exit 0;
+`bun run format:check` → "All matched files use the correct format." (21
+files).
 
 ### 7. Bundling (02:48:27)
+
 - [ ] Re-read `subtitle.md` around "tsdown" / "never bundle" before coding —
       transcript bundles with `tsdown`, marking workspace deps (e.g. zod,
       `@sendkit/core`, `@modelcontextprotocol/sdk`) as `noExternal: false` /
@@ -278,6 +306,7 @@ flag → commander `required option '--telegram-bot-token <token>' not specified
       `package.json`.
 
 ### 8. Publishing (03:03:03)
+
 - [ ] Re-read `subtitle.md` around "npm pack" / "publish" before coding —
       transcript dry-runs with `pnpm/bun pack --dry-run` per package, starting
       with core (everything else depends on it), then renames packages under
@@ -287,6 +316,7 @@ flag → commander `required option '--telegram-bot-token <token>' not specified
 - [ ] Publish `@sendkit/core` and `@sendkit/cli` first; verify `npx sendkit`.
 
 ### 9. Deploying OAuth (Remote MCP) (03:35:02)
+
 - [ ] Re-read `subtitle.md` around "deploy" before coding for the target host
       and required env/secrets setup it walks through.
 - [ ] Deploy `apps/remote-mcp`.
@@ -294,6 +324,7 @@ flag → commander `required option '--telegram-bot-token <token>' not specified
 - [ ] Verify a remote MCP client can connect and send.
 
 ### 10. Skill — `sendkit-skill` (03:37:46)
+
 - [ ] Re-read `subtitle.md` around "skill" before coding for the exact skill
       file structure/instructions format it demonstrates.
 - [ ] Author agent instructions: when to send, required inputs, examples.
