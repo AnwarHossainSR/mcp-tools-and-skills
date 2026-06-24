@@ -19,6 +19,11 @@ program
       process.exit(1);
     }
 
+    if (!chatId || !message) {
+      console.error('Chat ID and message are required');
+      process.exit(1);
+    }
+
     try {
       const result = await sendTelegramMessage({ chatId, message, botToken });
       console.log(`Telegram message sent. Message ID: ${result.messageId}`);
