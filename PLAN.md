@@ -227,16 +227,39 @@ resource JSON; `POST /:botToken/mcp` without a Bearer → 401 +
 > (Step 9). ChatGPT may need a **user-defined** OAuth client (manual app with
 > all scopes incl. `openid`) since its dynamic registration drops scopes.
 
-### 5. CLI Config (02:21:55)
+### 5. CLI Config ✅ (02:21:55)
 **Goal:** stop depending on a single ambient `.env`.
 
-- [ ] Re-read `subtitle.md` around "CLI config" / "config.json" before coding
-      — transcript describes a `~/.sendkit` (or similarly named) folder with
-      `config.json`, validated via a Zod config schema, and a `sendkit init`
-      command.
-- [ ] Config resolution: flags > env > config file.
-- [ ] `sendkit config` / `sendkit init` commands (set/get token, default chat)
-      as needed.
+- [x] Re-read `subtitle.md` around "CLI config" / "config.json" (≈ lines
+      1209–1327) before coding.
+- [x] Added `zod` to `@sendkit/cli`. Config lives at
+      `join(homedir(), '.config', 'sendkit', 'config.json')`;
+      `cliConfigSchema = z.object({ telegramBotToken: z.string().min(1).optional() })`.
+- [x] `writeTelegramBotToken(token)` — `mkdirSync(dirname, { recursive: true })`
+      then `writeFileSync(configPath, JSON.stringify({ telegramBotToken }, null, 2) + '\n', { mode: 0o600 })`.
+- [x] `getTelegramBotToken()` — throws `… Please run \`sendkit init\`.` if the
+      file is missing, Zod-parses it, throws again if the token is absent,
+      else returns it.
+- [x] `sendkit init --telegram-bot-token <token>` (commander
+      `requiredOption`, camelCased to `options.telegramBotToken`) writes the
+      config and prints the saved path.
+- [x] `telegram` command simplified: no env/arg guards, no try/catch; resolves
+      the token via `getTelegramBotToken()` and `console.log(JSON.stringify(result))`
+      (JSON output is cheaper/clearer for agents). Top-level
+      `program.parseAsync(...).catch()` prints `error.message` + `process.exit(1)`.
+
+Verified: `tsc --noEmit -p packages/cli/tsconfig.json` passes. With an empty
+home, `telegram 123 hi` → `Telegram bot token is required. Please run
+\`sendkit init\`.`; `init --telegram-bot-token …` writes
+`~/.config/sendkit/config.json` (`{ "telegramBotToken": … }`); `init` with no
+flag → commander `required option '--telegram-bot-token <token>' not specified`.
+
+> **Divergence from this plan's original wording:** the transcript implements a
+> **config-file-only** source — it removes the `.env`/`process.env` dependency
+> entirely rather than layering `flags > env > config file`, and ships only
+> `init` (no separate `config` get/set or default-chat). Matched the
+> transcript. (zod resolves to v4 in the CLI vs v3 in core — independent
+> schemas, no shared types, so no conflict.)
 
 ### 6. Formatting & Linting (02:37:35)
 - [ ] Re-read `subtitle.md` around "oxlint" / "formatter" before coding —
