@@ -4,10 +4,12 @@
   "description": "MCP tools and skills",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "dev:cli": "bun packages/cli/src/index.ts",
-    "dev:mcp-local": "bun packages/mcp-local/src/index.ts"
+    "dev:mcp-local": "bun packages/mcp-local/src/index.ts",
+    "dev:remote-mcp": "bun apps/remote-mcp/src/index.ts"
   }
 }

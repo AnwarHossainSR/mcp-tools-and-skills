@@ -145,14 +145,42 @@ Verified: `tsc --noEmit` passes; `bun run dev:mcp-local` starts and hangs
 waiting on stdio (no crash) — correct, since it's meant to be driven by an
 MCP client, not run directly.
 
-### 3. Remote MCP Server — `apps/remote-mcp` (01:36:38)
+### 3. Remote MCP Server — `apps/remote-mcp` ✅ (01:36:38)
 **Goal:** same tool over HTTP for remote clients.
 
-- [ ] Re-read `subtitle.md` around "remote MCP" before coding.
-- [ ] New app `apps/remote-mcp` (Hono + Bun).
-- [ ] `POST /mcp` endpoint wiring the MCP server over HTTP transport.
-- [ ] Bearer-token auth middleware as the first cut.
-- [ ] Reuse `@sendkit/core` for the tool (no logic duplication).
+- [x] Re-read `subtitle.md` around "remote MCP" before coding (≈ lines 813–925).
+- [x] New `apps/*` workspace glob in root `package.json`; app
+      `apps/remote-mcp` (`sendkit-remote-mcp`, private, Hono + Bun) with own
+      `tsconfig.json` extending root. Deps: `hono`,
+      `@modelcontextprotocol/sdk@1.29.0`, `@sendkit/core` (`workspace:*`),
+      `@types/node`.
+- [x] `src/index.ts` — `createServer(botToken)` builds an `McpServer`
+      (`sendkit-remote`) and registers the `telegram` tool; Hono
+      `POST /:botToken/mcp` extracts the token from the URL param, wires a
+      `WebStandardStreamableHTTPServerTransport` (`sessionIdGenerator: undefined`,
+      `enableJsonResponse: true`), `server.connect(transport)`, then
+      `transport.handleRequest(c.req.raw)` in `try` / `server.close()` in
+      `finally`. `app.notFound` → 404 JSON. `export default { port, fetch }`,
+      `port = PORT ?? 3000`.
+      - **Divergence note:** transcript imports a "web standard streamable HTTP
+        server transport" but never names the class; SDK 1.29 exposes it as
+        `WebStandardStreamableHTTPServerTransport` from
+        `@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js`
+        (returns a web `Response` from `handleRequest`, so `c.req.raw` works
+        directly with Hono). Token lives in the URL path
+        (`/:botToken/mcp`) per the transcript — this is the "first cut", real
+        auth (OAuth/Clerk) is Step 4.
+- [x] Reuse `@sendkit/core` for the tool (no logic duplication) — handler uses
+      the `botToken` arg directly, no `process.env`.
+- [x] Root script `dev:remote-mcp` → `bun apps/remote-mcp/src/index.ts`.
+
+Verified: `tsc --noEmit -p apps/remote-mcp/tsconfig.json` passes. Server
+boots on `:3000`; root GET → 404; `POST /abc123/mcp` `initialize` → 200 MCP
+handshake; `tools/list` returns the `telegram` tool with the core-derived
+`{ chatId, message }` input schema.
+
+> Bearer-token middleware deferred: transcript's Step 3 ships the bare server
+> (token in URL) and adds real auth in Step 4 (OAuth/Clerk). Kept aligned.
 
 ### 4. OAuth (01:57:54)
 **Goal:** replace the static bearer token with real auth.
