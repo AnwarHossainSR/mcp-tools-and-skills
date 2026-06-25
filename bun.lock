@@ -25,7 +25,7 @@
     },
     "packages/cli": {
       "name": "@anwarhossainsr/sendkit",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "bin": {
         "sendkit": "./dist/index.js",
       },
@@ -43,8 +43,11 @@
       },
     },
     "packages/mcp-local": {
-      "name": "@anwarhossainsr/sendkit-mcp-local",
-      "version": "0.0.0",
+      "name": "@anwarhossainsr/sendkit-mcp",
+      "version": "0.0.1",
+      "bin": {
+        "sendkit-mcp": "./dist/index.js",
+      },
       "dependencies": {
         "@anwarhossainsr/sendkit-core": "workspace:*",
         "@modelcontextprotocol/sdk": "1.29.0",
@@ -57,7 +60,7 @@
 
     "@anwarhossainsr/sendkit-core": ["@anwarhossainsr/sendkit-core@workspace:packages/core"],
 
-    "@anwarhossainsr/sendkit-mcp-local": ["@anwarhossainsr/sendkit-mcp-local@workspace:packages/mcp-local"],
+    "@anwarhossainsr/sendkit-mcp": ["@anwarhossainsr/sendkit-mcp@workspace:packages/mcp-local"],
 
     "@babel/generator": ["@babel/generator@8.0.0", "", { "dependencies": { "@babel/parser": "^8.0.0", "@babel/types": "^8.0.0", "@jridgewell/gen-mapping": "^0.3.12", "@jridgewell/trace-mapping": "^0.3.28", "@types/jsesc": "^2.5.0", "jsesc": "^3.0.2" } }, "sha512-NT9NrVwJsbSV6Y2FSstWa71EETOnzrjkL5/wX3D2mYHtKM+qvqB1DvR4D0Setb/gDBsHzRICifwEWMO8CnTF6g=="],
 
@@ -477,7 +480,7 @@
 
     "@anwarhossainsr/sendkit-core/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
-    "@anwarhossainsr/sendkit-mcp-local/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
+    "@anwarhossainsr/sendkit-mcp/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@modelcontextprotocol/sdk/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 

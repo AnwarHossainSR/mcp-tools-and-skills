@@ -116,7 +116,7 @@ own error message via the thrown `Error`.
 
 **Goal:** expose the same capability to local AI agents.
 
-- [x] New package `packages/mcp-local` (`@anwarhossainsr/sendkit-mcp-local`), deps
+- [x] New package `packages/mcp-local` (`@anwarhossainsr/sendkit-mcp`), deps
       `@modelcontextprotocol/sdk@1.29.0` (v1 — still the recommended/latest
       published version), `@anwarhossainsr/sendkit-core` (`workspace:*`), `zod`; own
       `tsconfig.json` extending root.
@@ -338,7 +338,7 @@ Verified: `bun run build:core|cli|mcp-local` all exit 0 and emit
       - `@anwarhossainsr/sendkit-core` (was `@sendkit/core`)
       - `@anwarhossainsr/sendkit` (the CLI; was `@sendkit/cli` — bin stays
         `sendkit`, so `npx @anwarhossainsr/sendkit` / global `sendkit`)
-      - `@anwarhossainsr/sendkit-mcp-local` (was `@sendkit/mcp-local`)
+      - `@anwarhossainsr/sendkit-mcp` (was `@sendkit/mcp-local`)
       - `apps/remote-mcp` left unscoped/private — deployed, not published.
       Updated everywhere: package `name`s, `workspace:*` deps, source imports,
       `tsdown.config.ts` `neverBundle` lists, root `build:*` `--filter` targets,
@@ -361,24 +361,34 @@ Verified: `bun run build:core|cli|mcp-local` all exit 0 and emit
       `EUNSUPPORTEDPROTOCOL "workspace:"`); that version is immutable, so the
       fix ships as `0.1.1` via `bun publish`.
 
+- [x] **Local MCP package renamed** `@anwarhossainsr/sendkit-mcp-local` →
+      `@anwarhossainsr/sendkit-mcp` (transcript publishes it as `sendkit-mcp`;
+      the `-local` suffix is only the repo folder alias). bin `sendkit-mcp` +
+      `#!/usr/bin/env node` shebang on the entry. Version `0.0.0 → 0.0.1`.
+      Updated root `build:mcp-local` / `release:pack:mcp-local` `--filter`
+      targets. `.mcp.json` now runs the **published** package via
+      `npx -y @anwarhossainsr/sendkit-mcp` (was `bun run dev:mcp-local`) with a
+      `TELEGRAM_BOT_TOKEN` env placeholder. Tarball verified: name/version
+      correct, core dep → `0.1.0`, shebang present.
+
 **npm registry state (2026-06-24):**
 - `@anwarhossainsr/sendkit-core@0.1.0` — ✅ published, clean (`deps: { zod }`).
-  No republish needed.
-- `@anwarhossainsr/sendkit@0.1.0` — ❌ broken (literal `workspace:*`). Superseded
-  by `0.1.1` (republish below); optionally `npm unpublish …@0.1.0`.
-- `@anwarhossainsr/sendkit-mcp-local` — not yet published.
+- `@anwarhossainsr/sendkit@0.1.1` — ✅ published, fixed (`sendkit-core: 0.1.0`).
+  Broken `0.1.0` superseded; optionally `npm unpublish …@0.1.0`.
+- `@anwarhossainsr/sendkit-mcp-local@0.0.0` — ⚠️ published under the OLD name by
+  mistake; orphan. Unpublish: `npm unpublish @anwarhossainsr/sendkit-mcp-local --force`.
+- `@anwarhossainsr/sendkit-mcp@0.0.1` — ⏳ ready, not yet published.
 
-- [ ] **Publish remaining (manual — irreversible, needs npm 2FA `--otp`):**
+- [ ] **Publish `sendkit-mcp` (manual — irreversible, needs npm 2FA `--otp`):**
       ```bash
-      # cli (fixed 0.1.1) — bun rewrites workspace:* → 0.1.0
-      cd packages/cli && bun publish --otp=<6-digit-code>
-      # local MCP server (first publish)
-      cd ../mcp-local && bun publish --otp=<6-digit-code>
+      cd packages/mcp-local && bun publish --otp=<6-digit-code>
       ```
-      Then verify: `npm i -g @anwarhossainsr/sendkit && sendkit --help`.
-      - **Divergence note:** core was published with plain `npm publish` (no
-        workspace dep, fine). cli & mcp-local **must** use `bun publish` — it
-        resolves the bun `workspace:*` alias that `npm publish` cannot.
+      Verify: `npx -y @anwarhossainsr/sendkit-mcp` hangs on stdio (correct —
+      driven by an MCP client). `.mcp.json` then picks it up via `npx`.
+      - **Divergence note:** mcp packages **must** use `bun publish` (resolves
+        the `workspace:*` core alias `npm publish` cannot). If the agent host
+        caches `npx`, switch `.mcp.json` `command` to `bunx` (transcript hit
+        this; `npx` is fine once cache clears).
 
 ### 9. Deploying OAuth (Remote MCP) (03:35:02)
 

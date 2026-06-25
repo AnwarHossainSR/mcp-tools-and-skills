@@ -2,8 +2,11 @@
   "mcpServers": {
     "sendKit": {
       "type": "stdio",
-      "command": "bun",
-      "args": ["run", "dev:mcp-local"]
+      "command": "npx",
+      "args": ["-y", "@anwarhossainsr/sendkit-mcp"],
+      "env": {
+        "TELEGRAM_BOT_TOKEN": "<your-telegram-bot-token>"
+      }
     }
   }
 }

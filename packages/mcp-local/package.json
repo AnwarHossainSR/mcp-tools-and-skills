@@ -1,6 +1,6 @@
 {
-  "name": "@anwarhossainsr/sendkit-mcp-local",
-  "version": "0.0.0",
+  "name": "@anwarhossainsr/sendkit-mcp",
+  "version": "0.0.1",
   "description": "SendKit local MCP server (stdio transport)",
   "bin": {
     "sendkit-mcp": "./dist/index.js"
