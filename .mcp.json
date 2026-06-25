@@ -2,10 +2,13 @@
   "mcpServers": {
     "sendKit": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anwarhossainsr/sendkit-mcp"],
+      "command": "bunx",
+      "args": [
+        "-y",
+        "@anwarhossainsr/sendkit-mcp"
+      ],
       "env": {
-        "TELEGRAM_BOT_TOKEN": "<your-telegram-bot-token>"
+        "TELEGRAM_BOT_TOKEN": "8808391690:AAF092GM-o4Q4goUVxT67hgh8DSOc4fYnIk"
       }
     }
   }
